@@ -1,0 +1,37 @@
+	<app>
+        <id>%d</id>
+        <name>%s</name>
+        <price>%s</price>
+        <category>%s</category>
+        <subcategory>  </subcategory>
+        <Updated>%s</Updated >
+        <version>%s</version>
+        <size>%s</size>
+        <languages>%s</languages>
+        <seller>%s</seller>
+    <copyright>%s</copyright>
+        <app-rating>
+            <description>%s</description>
+            <reasons>%s</reasons>
+    </app-rating>
+        <requirements>%s</requirements>
+        <customer-ratings>
+            <current>
+                <stars>%s</stars>
+                <rating-counts>%s</rating-counts>
+    </current>
+    <all>
+                <stars>%s</stars>
+                <rating-counts>%s</rating-counts>
+    </all>
+    </customer-ratings>
+    <description>%s</description>
+    <whats-new>%s</whats-new>
+    <screenshots>
+        %s
+        %s
+    </screenshots>
+    <reviews>
+        %s
+    </reviews>
+    </app>
