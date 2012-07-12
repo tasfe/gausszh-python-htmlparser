@@ -5,6 +5,7 @@
 import urllib2
 import re
 import time
+import json
 from sgmllib import SGMLParser
 
 urlpat=re.compile(r'\.*itunes.apple.com/us/app.*id.*\d')
@@ -62,9 +63,7 @@ class ListName(SGMLParser):
     def start_a(self,attrs):
         for n,k in attrs:
             if n=='href':
-                match=urlpat.search(k)
-                if match:
-                    ret=match.group()
+                if re.findall(r'\.*itunes.apple.com/us/app.*id.*\d',k):
                     self.appurl.append(k)
                     self.appnameFlag=1
     def start_div(self,attrs):
@@ -103,19 +102,17 @@ def simplify(lt):
         if temp:
             ret.append(temp)
     return ret
+   
 def main():    
-    global category
     try:
-        #beginUrl=raw_input("input URL:")#http://itunes.apple.com/us/genre/ios-games/id6014?mt=8
-        returnfile=urllib2.urlopen('http://itunes.apple.com/us/genre/ios-utilities/id6002?mt=8')
-        content = returnfile.read()#可以设置timeout,值得单位是秒
-        returnfile.close()
-        listname = ListName()
-        listname.feed(content)
-        outputFile=open('utilitiesoutputFile.xml','w')
+        outputFile=open('musicoutputFile.xml','w')
         print >>outputFile,'<app>'
-        appname=listname.appname
-        appurl=listname.appurl
+        appnamefile=open('appname.txt','r')
+        appname=json.load(appnamefile)
+        appurlfile=open('appurl.txt','r')
+        appurl=json.load(appurlfile)
+        appnamefile.close()
+        appurlfile.close()
         havedapp={}
         counts=0
     except Exception,e:
@@ -130,28 +127,31 @@ def main():
             break    
         try:
             if havedapp.has_key(appurl[i]):
-                continue                        
-            del(listname)
+                continue                    
+            
+            #appurl[i]='http://itunes.apple.com/us/app/the-karate-kid/id364298872?mt=8'
+            while  True:
+                try:
+                    returnfile=urllib2.urlopen(appurl[i])
+                    content=returnfile.read()
+                    returnfile.close()
+                    break
+                except Exception,e:
+                    if e.reason.errno==10054:
+                        time.sleep(1)
+                    else:
+                        break
+                
             listname=ListName()
-            #appurl[i]='http://itunes.apple.com/us/app/bumbee/id434582652?mt=8'
-            try:
-                returnfile=urllib2.urlopen(appurl[i])
-                content=returnfile.read()
-                returnfile.close()
-            except Exception,e:
-                if e.reason.errno==10054:
-                    listname=i=i-1
-                    time.sleep(1)
-                    continue
             havedapp[appurl[i]]=1
             listname.feed(content)
-            name=re.findall(r'app/.*/id',appurl[i])[0]
-            name=name[4:-3]
-            appurl+=listname.appurl            
+            name=appname[i]
+#            name=re.findall(r'app/.*/id',appurl[i])[0]
+#            name=name[4:-3]
             info={}
             j=0
             tmpinfo=simplify(listname.info[0:50])
-            info['price']=tmpinfo[2]    
+            info['price']=tmpinfo[1]    
             for one in tmpinfo:
                 if one in ['Category:','Released','Updated:','Version:','Size:','Languages:','Language:',\
                            'Seller:','Requirements:','Released:','All Versions:','Current Version:']:
@@ -161,12 +161,12 @@ def main():
                         info['app_rating:']=tmpinfo[j+3]
                         info['reasons:']=tmpinfo[j+4]
                 j+=1          
-            if locals().has_key('category'):
-                if category!=info['Category:']:
-                    continue
-            else:
-                category=info['Category:'] 
-            id=int(re.findall(r'[\d]{5,}',appurl[i])[0])   
+#            if locals().has_key('category'):
+#                if category!=info['Category:']:
+#                    continue
+#            else:
+            category=info['Category:'] 
+            id=str(re.findall(r'[\d]{5,}',appurl[i])[0])   
             customer=simplify(listname.customer)
             price=info['price']            
             if info.has_key('Released:'):
@@ -203,10 +203,10 @@ def main():
             whats_new=''.join(t)
             iphonescreenshot=''
             for one in listname.iphonescreenshots:
-                iphonescreenshot+='<screenshot type="iphone">%s</screenshot>\n' % one
+                iphonescreenshot+='<screenshot type="iphone"><![CDATA[%s]]></screenshot>\n' % one
             ipadscreenshot=''
             for one in listname.ipadscreenshots:
-                ipadscreenshot+='<screenshot type="ipad">%s</screenshot>\n' % one
+                ipadscreenshot+='<screenshot type="ipad"><![CDATA[%s]]></screenshot>\n' % one
             usernameindex=[]
             for k in range(len(customer)):
                 if re.findall(r'by\n',customer[k]):
@@ -217,20 +217,20 @@ def main():
                     t=usernameindex[k+1]-1
                 else:
                     t=usernameindex[k]+2
-                s='<review>\n<user>%s</user>\n<rating>%s</rating>\n<title>%s</title>\n<content>%s</content>\n</review>\n' % (re.findall(r'.*$',customer[usernameindex[k]])[0].strip(),listname.customerstart[k],customer[usernameindex[k]-1],''.join(customer[usernameindex[k]+1:t]))
+                s='<review>\n<user><![CDATA[%s]]></user>\n<rating><![CDATA[%s]]></rating>\n<title><![CDATA[%s]]></title>\n<content><![CDATA[%s]]></content>\n</review>\n' % \
+                (re.findall(r'.*$',customer[usernameindex[k]])[0].strip(),listname.customerstart[k],customer[usernameindex[k]-1],''.join(customer[usernameindex[k]+1:t]))
                 review.append(s)
             review=''.join(review)
-            output=template %(id,name, price,category,Updated,version,size,languages,seller,copyright,\
-            app_rating,reason,requirements,stars1,rating_counts1,stars2,rating_counts2,description,\
-            whats_new,iphonescreenshot,ipadscreenshot,review,)
+            output=template % (id,name, price,category,Updated,version,size,languages,seller,copyright,app_rating,reason,requirements,\
+                 stars1,rating_counts1,stars2,rating_counts2,description,whats_new,iphonescreenshot,ipadscreenshot,review)
             print '%dth over!' % i
-            print >>outputFile,re.sub(r'(<br>)|&','', output)
+            print >>outputFile,output
             counts+=1
-            if counts==500:
+            if counts==1000:
                 counts=0
                 print >>outputFile,'</app>'
                 outputFile.close()
-                filename='utilitiesoutputFile%d.xml' % i
+                filename='musicoutputFile%d.xml' % i
                 outputFile=open(filename,'w')
                 print >>outputFile,'<app>'
         except Exception,e:
