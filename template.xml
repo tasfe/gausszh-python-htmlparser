@@ -1,37 +1,37 @@
-	<app>
-        <id>%d</id>
-        <name>%s</name>
+<app>
+        <id>%s</id>
+        <name><![CDATA[%s]]></name>
         <price>%s</price>
         <category>%s</category>
-        <subcategory>  </subcategory>
-        <Updated>%s</Updated >
+        <subcategory> </subcategory>
+        <Updated>%s</Updated>
         <version>%s</version>
         <size>%s</size>
-        <languages>%s</languages>
-        <seller>%s</seller>
-    <copyright>%s</copyright>
+        <languages><![CDATA[%s]]></languages>
+        <seller><![CDATA[%s]]></seller>
+        <copyright><![CDATA[%s]]></copyright>
         <app-rating>
-            <description>%s</description>
-            <reasons>%s</reasons>
-    </app-rating>
-        <requirements>%s</requirements>
+            <des><![CDATA[%s]]></des>
+            <reasons><![CDATA[%s]]></reasons>
+        </app-rating>
+        <requirements><![CDATA[%s]]></requirements>
         <customer-ratings>
             <current>
+                <cstars>%s</cstars>
+                <crating-counts>%s</crating-counts>
+            </current>
+            <all>
                 <stars>%s</stars>
                 <rating-counts>%s</rating-counts>
-    </current>
-    <all>
-                <stars>%s</stars>
-                <rating-counts>%s</rating-counts>
-    </all>
-    </customer-ratings>
-    <description>%s</description>
-    <whats-new>%s</whats-new>
-    <screenshots>
+            </all>
+        </customer-ratings>
+        <description><![CDATA[%s]]></description>
+        <whats-new><![CDATA[%s]]></whats-new>
+        <screenshots>
         %s
         %s
-    </screenshots>
-    <reviews>
+        </screenshots>
+        <reviews>
         %s
-    </reviews>
-    </app>
+        </reviews>
+</app>
