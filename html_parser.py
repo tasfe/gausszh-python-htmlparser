@@ -107,9 +107,9 @@ def main():
     try:
         outputFile=open('musicoutputFile.xml','w')
         print >>outputFile,'<app>'
-        appnamefile=open('appname.txt','r')
+        appnamefile=open('appname11.txt','r')
         appname=json.load(appnamefile)
-        appurlfile=open('appurl.txt','r')
+        appurlfile=open('appurl11.txt','r')
         appurl=json.load(appurlfile)
         appnamefile.close()
         appurlfile.close()
